@@ -1,7 +1,7 @@
 ﻿
 namespace HomeWorkDoubleImage
 {
-    partial class Form1
+    partial class GameForm
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -32,6 +32,7 @@ namespace HomeWorkDoubleImage
             this.components = new System.ComponentModel.Container();
             this.gamePanel = new System.Windows.Forms.Panel();
             this.infoPanel = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.ballsLabel = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
@@ -50,6 +51,7 @@ namespace HomeWorkDoubleImage
             // 
             // infoPanel
             // 
+            this.infoPanel.Controls.Add(this.button1);
             this.infoPanel.Controls.Add(this.ballsLabel);
             this.infoPanel.Controls.Add(this.timeLabel);
             this.infoPanel.Controls.Add(this.statusLabel);
@@ -58,6 +60,16 @@ namespace HomeWorkDoubleImage
             this.infoPanel.Name = "infoPanel";
             this.infoPanel.Size = new System.Drawing.Size(337, 651);
             this.infoPanel.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button1.Location = new System.Drawing.Point(0, 608);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(337, 43);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Завершить игру";
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // ballsLabel
             // 
@@ -105,7 +117,7 @@ namespace HomeWorkDoubleImage
             this.wrongTimer.Interval = 750;
             this.wrongTimer.Tick += new System.EventHandler(this.wrongTimer_Tick);
             // 
-            // Form1
+            // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -114,8 +126,8 @@ namespace HomeWorkDoubleImage
             this.Controls.Add(this.gamePanel);
             this.MaximumSize = new System.Drawing.Size(960, 690);
             this.MinimumSize = new System.Drawing.Size(798, 690);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "GameForm";
+            this.Text = "Игра на память";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.infoPanel.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -131,6 +143,7 @@ namespace HomeWorkDoubleImage
         private System.Windows.Forms.Timer gameTimer;
         private System.Windows.Forms.Label ballsLabel;
         private System.Windows.Forms.Timer wrongTimer;
+        private System.Windows.Forms.Button button1;
     }
 }
 

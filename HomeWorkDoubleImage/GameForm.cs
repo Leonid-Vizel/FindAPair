@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace HomeWorkDoubleImage
 {
-    public partial class Form1 : Form
+    public partial class GameForm : Form
     {
         #region For Wrong Timer
         private PictureBox hide1 = null;
@@ -28,7 +28,7 @@ namespace HomeWorkDoubleImage
         private const int between = 5;
         private Color defaultBackColor = Color.Gray;
 
-        public Form1()
+        public GameForm()
         {
             InitializeComponent();
             LoadImages();
@@ -93,14 +93,15 @@ namespace HomeWorkDoubleImage
                     statusLabel.BackColor = Color.Green;
                     if (count >= 18)
                     {
-                        statusLabel.Text = "Верно!";
-                        Close();
+                        gameTimer.Stop();
+                        blockClick = true;
+                        statusLabel.Text = "Победа!";
                     }
                 }
                 else
                 {
                     sender.Image = images[imageInfo.Item1];
-                    statusLabel.Text = "Неверно! Ожидайте";
+                    statusLabel.Text = "Неверно! Ожидайте...";
                     statusLabel.BackColor = Color.Red;
                     blockClick = true;
                     hide1 = sender;
@@ -137,7 +138,7 @@ namespace HomeWorkDoubleImage
             };
             Random random = new Random(Guid.NewGuid().GetHashCode());
             int temp;
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < random.Next(100,500); i++)
             {
                 int firstX = random.Next(0, 6);
                 int firstY = random.Next(0, 6);
