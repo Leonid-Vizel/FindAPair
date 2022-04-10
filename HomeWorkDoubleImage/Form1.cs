@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,10 +14,16 @@ namespace HomeWorkDoubleImage
 {
     public partial class Form1 : Form
     {
-        private PictureBox preLastClickedPictureBox = null;
+        #region For Wrong Timer
+        private PictureBox hide1 = null;
+        private PictureBox hide2 = null;
+        #endregion
+
+        private bool blockClick = false;
         private PictureBox lastClickedPictureBox = null;
+        private int count;
+        private float time;
         private Image[] images = new Image[18];
-        private PictureBox[,] pictureboxes = new PictureBox[6, 6];
         private const int side = 100;
         private const int between = 5;
         private Color defaultBackColor = Color.Gray;
@@ -30,7 +37,7 @@ namespace HomeWorkDoubleImage
 
         private void InitializePictureBoxes(int[,] inputTags)
         {
-            int x, y;
+            int x = 0, y = 0;
             for (int i = 0; i < 6; i++)
             {
                 y = between + i * (side + between);
@@ -45,40 +52,63 @@ namespace HomeWorkDoubleImage
                     pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                     pictureBox.Click += ClickPictureBox;
                     pictureBox.BorderStyle = BorderStyle.Fixed3D;
-                    Controls.Add(pictureBox);
-                    pictureboxes[i, j] = pictureBox;
+                    gamePanel.Controls.Add(pictureBox);
                 }
             }
+            gamePanel.Size = new Size(x + between + side, y + between + side);
         }
 
         private void ClickPictureBox(object senderObj, EventArgs e)
         {
+            if (blockClick) return;
             PictureBox sender = (PictureBox)senderObj;
-            if (sender == null || sender.Tag == null)
+            if (sender == null || lastClickedPictureBox == sender || sender.Tag == null)
             {
                 return;
             }
-            (int, bool) currentInfo = ((int, bool))sender.Tag;
-            if (currentInfo.Item2)
+            (int, bool) imageInfo = ((int, bool))sender.Tag;
+            if (imageInfo.Item2)
             {
                 return;
             }
-            sender.Image = images[currentInfo.Item1];
-            if (lastClickedPictureBox != null)
+            sender.Image = images[imageInfo.Item1];
+            if (lastClickedPictureBox == null)
             {
-                (int, bool) lastInfo = ((int, bool))lastClickedPictureBox.Tag;
-                if (!lastInfo.Item2)
+                lastClickedPictureBox = sender;
+                sender.Image = images[imageInfo.Item1];
+                statusLabel.Text = "Выберите картинку";
+                statusLabel.BackColor = Color.Gray;
+            }
+            else
+            {
+                (int, bool) lastImageInfo = ((int, bool))lastClickedPictureBox.Tag;
+                if (lastImageInfo.Item1 == imageInfo.Item1)
                 {
-                    if (lastInfo.Item1 == currentInfo.Item1)
+                    sender.Image = images[imageInfo.Item1];
+                    lastImageInfo.Item2 = imageInfo.Item2 = true;
+                    lastClickedPictureBox.Tag = lastImageInfo;
+                    sender.Tag = imageInfo;
+                    ballsLabel.Text = $"Очки: {++count}";
+                    statusLabel.Text = "Верно!";
+                    statusLabel.BackColor = Color.Green;
+                    if (count >= 18)
                     {
-                        lastInfo
+                        statusLabel.Text = "Верно!";
+                        Close();
                     }
                 }
+                else
+                {
+                    sender.Image = images[imageInfo.Item1];
+                    statusLabel.Text = "Неверно! Ожидайте";
+                    statusLabel.BackColor = Color.Red;
+                    blockClick = true;
+                    hide1 = sender;
+                    hide2 = lastClickedPictureBox;
+                    wrongTimer.Start();
+                }
+                lastClickedPictureBox = null;
             }
-
-
-            preLastClickedPictureBox = lastClickedPictureBox;
-            lastClickedPictureBox = sender;
         }
 
         private void LoadImages()
@@ -118,6 +148,35 @@ namespace HomeWorkDoubleImage
                 shuffleArray[secondX, secondY] = temp;
             }
             return shuffleArray;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void OnTimerTick(object sender, EventArgs e)
+        {
+            time += 0.1F;
+            if (time < 60)
+            {
+                timeLabel.Text = $"Время:\n{Math.Round(time, 1)} сек";
+            }
+            else
+            {
+                int mins = (int)time / 60;
+                float secs = time % 60;
+                timeLabel.Text = $"Время:\n{mins} мин {Math.Round(secs, 1)} сек";
+            }
+        }
+
+        private void wrongTimer_Tick(object sender, EventArgs e)
+        {
+            hide1.Image = hide2.Image = null;
+            statusLabel.Text = "Выберите картинку";
+            statusLabel.BackColor = Color.Gray;
+            blockClick = false;
+            wrongTimer.Stop();
         }
     }
 }
