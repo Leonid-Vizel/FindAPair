@@ -32,7 +32,7 @@ namespace HomeWorkDoubleImage
             this.components = new System.ComponentModel.Container();
             this.gamePanel = new System.Windows.Forms.Panel();
             this.infoPanel = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.EndGameBtn = new System.Windows.Forms.Button();
             this.ballsLabel = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
@@ -51,7 +51,7 @@ namespace HomeWorkDoubleImage
             // 
             // infoPanel
             // 
-            this.infoPanel.Controls.Add(this.button1);
+            this.infoPanel.Controls.Add(this.EndGameBtn);
             this.infoPanel.Controls.Add(this.ballsLabel);
             this.infoPanel.Controls.Add(this.timeLabel);
             this.infoPanel.Controls.Add(this.statusLabel);
@@ -61,15 +61,19 @@ namespace HomeWorkDoubleImage
             this.infoPanel.Size = new System.Drawing.Size(337, 651);
             this.infoPanel.TabIndex = 1;
             // 
-            // button1
+            // EndGameBtn
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(0, 608);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(337, 43);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Завершить игру";
-            this.button1.UseVisualStyleBackColor = true;
+            this.EndGameBtn.BackColor = System.Drawing.Color.Gold;
+            this.EndGameBtn.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.EndGameBtn.FlatAppearance.BorderSize = 0;
+            this.EndGameBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.EndGameBtn.Location = new System.Drawing.Point(0, 608);
+            this.EndGameBtn.Name = "EndGameBtn";
+            this.EndGameBtn.Size = new System.Drawing.Size(337, 43);
+            this.EndGameBtn.TabIndex = 3;
+            this.EndGameBtn.Text = "Завершить игру";
+            this.EndGameBtn.UseVisualStyleBackColor = false;
+            this.EndGameBtn.Click += new System.EventHandler(this.button1_Click);
             // 
             // ballsLabel
             // 
@@ -128,7 +132,7 @@ namespace HomeWorkDoubleImage
             this.MinimumSize = new System.Drawing.Size(798, 690);
             this.Name = "GameForm";
             this.Text = "Игра на память";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GameForm_FormClosing);
             this.infoPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -143,7 +147,7 @@ namespace HomeWorkDoubleImage
         private System.Windows.Forms.Timer gameTimer;
         private System.Windows.Forms.Label ballsLabel;
         private System.Windows.Forms.Timer wrongTimer;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button EndGameBtn;
     }
 }
 

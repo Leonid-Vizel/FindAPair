@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.Windows.Forms;
 
 namespace HomeWorkDoubleImage
@@ -19,18 +20,26 @@ namespace HomeWorkDoubleImage
         private PictureBox hide2 = null;
         #endregion
 
+        #region GameInfo
         private bool blockClick = false;
         private PictureBox lastClickedPictureBox = null;
-        private int count;
+        private int points;
         private float time;
         private Image[] images = new Image[18];
         private const int side = 100;
         private const int between = 5;
         private Color defaultBackColor = Color.Gray;
+        #endregion
 
-        public GameForm()
+        #region Data
+        private string username;
+        #endregion
+
+        public GameForm(string username)
         {
+            this.username = username;
             InitializeComponent();
+            Text = $"[{username}] {Text}";
             LoadImages();
             InitializePictureBoxes(Shuffle());
         }
@@ -47,7 +56,7 @@ namespace HomeWorkDoubleImage
                     PictureBox pictureBox = new PictureBox();
                     pictureBox.Size = new Size(side, side);
                     pictureBox.Location = new Point(x, y);
-                    pictureBox.Tag = (inputTags[i, j],false);
+                    pictureBox.Tag = inputTags[i, j];
                     pictureBox.BackColor = defaultBackColor;
                     pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                     pictureBox.Click += ClickPictureBox;
@@ -66,41 +75,38 @@ namespace HomeWorkDoubleImage
             {
                 return;
             }
-            (int, bool) imageInfo = ((int, bool))sender.Tag;
-            if (imageInfo.Item2)
-            {
-                return;
-            }
-            sender.Image = images[imageInfo.Item1];
+            int currentImageId = (int)sender.Tag;
+            sender.Image = images[currentImageId];
             if (lastClickedPictureBox == null)
             {
                 lastClickedPictureBox = sender;
-                sender.Image = images[imageInfo.Item1];
                 statusLabel.Text = "Выберите картинку";
                 statusLabel.BackColor = Color.Gray;
             }
             else
             {
-                (int, bool) lastImageInfo = ((int, bool))lastClickedPictureBox.Tag;
-                if (lastImageInfo.Item1 == imageInfo.Item1)
+                int lastImageInfo = (int)lastClickedPictureBox.Tag;
+                if (lastImageInfo == currentImageId)
                 {
-                    sender.Image = images[imageInfo.Item1];
-                    lastImageInfo.Item2 = imageInfo.Item2 = true;
-                    lastClickedPictureBox.Tag = lastImageInfo;
-                    sender.Tag = imageInfo;
-                    ballsLabel.Text = $"Очки: {++count}";
+                    sender.Click -= ClickPictureBox;
+                    lastClickedPictureBox.Click -= ClickPictureBox;
+                    ballsLabel.Text = $"Очки: {++points}";
                     statusLabel.Text = "Верно!";
                     statusLabel.BackColor = Color.Green;
-                    if (count >= 18)
+                    if (points >= 18)
                     {
                         gameTimer.Stop();
                         blockClick = true;
                         statusLabel.Text = "Победа!";
+                        if (WinWrite())
+                        {
+                            new RatingForm().Show();
+                        }
+                        Close();
                     }
                 }
                 else
                 {
-                    sender.Image = images[imageInfo.Item1];
                     statusLabel.Text = "Неверно! Ожидайте...";
                     statusLabel.BackColor = Color.Red;
                     blockClick = true;
@@ -118,6 +124,7 @@ namespace HomeWorkDoubleImage
             if (paths.Length < 18)
             {
                 MessageBox.Show("Требую больше картинок!");
+                Close();
             }
             for (int i = 0; i < 18; i++)
             {
@@ -138,7 +145,7 @@ namespace HomeWorkDoubleImage
             };
             Random random = new Random(Guid.NewGuid().GetHashCode());
             int temp;
-            for (int i = 0; i < random.Next(100,500); i++)
+            for (int i = 0; i < random.Next(100, 500); i++)
             {
                 int firstX = random.Next(0, 6);
                 int firstY = random.Next(0, 6);
@@ -149,11 +156,6 @@ namespace HomeWorkDoubleImage
                 shuffleArray[secondX, secondY] = temp;
             }
             return shuffleArray;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
         }
 
         private void OnTimerTick(object sender, EventArgs e)
@@ -178,6 +180,60 @@ namespace HomeWorkDoubleImage
             statusLabel.BackColor = Color.Gray;
             blockClick = false;
             wrongTimer.Stop();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private bool WinWrite()
+        {
+            if (File.Exists("baze.db"))
+            {
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=baze.db;Version=3;"))
+                {
+                    connection.Open();
+                    object readResult;
+                    using (SQLiteCommand command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"SELECT Time FROM Users WHERE Nickname = '{username}';";
+                        readResult = command.ExecuteScalar();
+                    }
+                    if (readResult == null || (long)readResult > (int)time)
+                    {
+                        using (SQLiteCommand command = connection.CreateCommand())
+                        {
+                            if (readResult == null)
+                            {
+                                command.CommandText = $"INSERT INTO Users(Nickname, Points, Time) VALUES('{username}',{points}, {(int)time});";
+                            }
+                            else
+                            {
+                                command.CommandText = $"UPDATE Users SET Time={(int)time} WHERE Nickname = '{username}';";
+                            }
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                MessageBox.Show("Ваша победа не была зафиксирована, так как база данных не была найдена.", "Ошибка");
+                return false;
+            }
+        }
+
+        private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (points < 18)
+            {
+                if (MessageBox.Show("Хотите завершить игру?", "Предупреждение", MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }
         }
     }
 }
