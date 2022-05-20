@@ -35,7 +35,7 @@ namespace HomeWorkDoubleImage
                             {
                                 while (reader.Read())
                                 {
-                                    dataView.Rows.Add(reader.GetString(0), reader.GetInt32(1), $"{reader.GetInt32(2)} сек");
+                                    dataView.Rows.Add(reader.GetValue(0), reader.GetInt32(1), $"{reader.GetInt32(2)} сек");
                                 }
                             }
                         }
